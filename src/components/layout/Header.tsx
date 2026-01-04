@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Heart, ShoppingBag, Menu, X, Globe, ChevronDown } from "lucide-react";
+import { Heart, ShoppingBag, Menu, Globe, ChevronDown } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/Logo";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,8 +29,18 @@ export function Header() {
   const [currency, setCurrency] = useState(currencies[0]);
   const [language, setLanguage] = useState(languages[0]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const isHome = location.pathname === "/";
+
+  // Track scroll position to adapt header background
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const navLinks = [
     { name: "Collections", href: "/collections" },
@@ -38,12 +49,17 @@ export function Header() {
     { name: "Our Story", href: "/about" },
   ];
 
+  // Dynamic styling based on scroll and page
+  const showSolidBg = isScrolled || !isHome;
+  const textColor = showSolidBg ? "" : "text-ivory";
+  const hoverBg = showSolidBg ? "" : "hover:bg-ivory/10";
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        isHome
-          ? "bg-transparent"
-          : "bg-background/95 backdrop-blur-md border-b border-border/50"
+        showSolidBg
+          ? "bg-background/95 backdrop-blur-md border-b border-border/50 shadow-sm"
+          : "bg-gradient-to-b from-noir/40 to-transparent"
       }`}
     >
       <div className="luxury-container">
@@ -55,15 +71,13 @@ export function Header() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`text-xs tracking-wide ${
-                    isHome ? "text-ivory hover:bg-ivory/10" : ""
-                  }`}
+                  className={`text-xs tracking-wide ${textColor} ${hoverBg}`}
                 >
                   {currency.code}
                   <ChevronDown className="ml-1 h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="min-w-[140px]">
+              <DropdownMenuContent align="start" className="min-w-[140px] bg-background">
                 {currencies.map((c) => (
                   <DropdownMenuItem
                     key={c.code}
@@ -81,16 +95,14 @@ export function Header() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`text-xs tracking-wide ${
-                    isHome ? "text-ivory hover:bg-ivory/10" : ""
-                  }`}
+                  className={`text-xs tracking-wide ${textColor} ${hoverBg}`}
                 >
                   <Globe className="h-3.5 w-3.5 mr-1" />
                   {language.code.toUpperCase()}
                   <ChevronDown className="ml-1 h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
+              <DropdownMenuContent align="start" className="bg-background">
                 {languages.map((l) => (
                   <DropdownMenuItem
                     key={l.code}
@@ -107,11 +119,12 @@ export function Header() {
           {/* Center: Logo */}
           <Link
             to="/"
-            className={`font-serif text-2xl md:text-3xl tracking-wider ${
-              isHome ? "text-ivory" : "text-foreground"
-            }`}
+            className={`flex items-center gap-3 ${textColor}`}
           >
-            MAISON LUMIÈRE
+            <Logo size="sm" className={textColor} animated={!isScrolled} />
+            <span className="font-serif text-xl md:text-2xl tracking-wider">
+              LE BIJOU
+            </span>
           </Link>
 
           {/* Right: Nav & Icons */}
@@ -122,9 +135,9 @@ export function Header() {
                   key={link.name}
                   to={link.href}
                   className={`text-xs tracking-widest uppercase luxury-link ${
-                    isHome
-                      ? "text-ivory/90 hover:text-ivory"
-                      : "text-muted-foreground hover:text-foreground"
+                    showSolidBg
+                      ? "text-muted-foreground hover:text-foreground"
+                      : "text-ivory/90 hover:text-ivory"
                   }`}
                 >
                   {link.name}
@@ -137,9 +150,7 @@ export function Header() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={`relative ${
-                    isHome ? "text-ivory hover:bg-ivory/10" : ""
-                  }`}
+                  className={`relative ${textColor} ${hoverBg}`}
                 >
                   <Heart className="h-5 w-5" />
                   {wishlist.length > 0 && (
@@ -154,9 +165,7 @@ export function Header() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={`relative ${
-                    isHome ? "text-ivory hover:bg-ivory/10" : ""
-                  }`}
+                  className={`relative ${textColor} ${hoverBg}`}
                 >
                   <ShoppingBag className="h-5 w-5" />
                   {cartCount > 0 && (
@@ -173,15 +182,18 @@ export function Header() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className={`lg:hidden ${
-                      isHome ? "text-ivory hover:bg-ivory/10" : ""
-                    }`}
+                    className={`lg:hidden ${textColor} ${hoverBg}`}
                   >
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-80 bg-background">
                   <div className="flex flex-col gap-8 pt-8">
+                    <div className="flex items-center gap-2">
+                      <Logo size="sm" className="text-primary" />
+                      <span className="font-serif text-lg tracking-wider">LE BIJOU</span>
+                    </div>
+                    
                     <nav className="flex flex-col gap-6">
                       {navLinks.map((link) => (
                         <Link

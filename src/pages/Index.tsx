@@ -166,7 +166,7 @@ const Index = () => {
                 <span className="italic">Passion</span>
               </h2>
               <p className="text-muted-foreground leading-relaxed mb-6">
-                For over three decades, Maison Lumière has been creating
+                For over three decades, Le Bijou Boutique has been creating
                 exceptional jewelry that transcends time. Our master artisans
                 combine centuries-old techniques with contemporary design to
                 craft pieces that become cherished heirlooms.

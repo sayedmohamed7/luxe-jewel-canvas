@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Instagram, Facebook, Twitter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Logo } from "@/components/Logo";
 
 export function Footer() {
   return (
@@ -36,10 +37,11 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <Link to="/" className="font-serif text-2xl tracking-wider">
-              MAISON LUMIÈRE
+            <Link to="/" className="flex items-center gap-2 mb-4">
+              <Logo size="sm" className="text-ivory" animated={false} />
+              <span className="font-serif text-xl tracking-wider">LE BIJOU</span>
             </Link>
-            <p className="text-ivory/50 text-sm mt-4 leading-relaxed">
+            <p className="text-ivory/50 text-sm leading-relaxed">
               Crafting timeless elegance since 1987. Each piece tells a story of
               exceptional artistry and enduring beauty.
             </p>
@@ -93,18 +95,18 @@ export function Footer() {
             </h4>
             <ul className="space-y-3">
               {[
-                "Contact Us",
-                "Shipping & Delivery",
-                "Returns & Exchanges",
-                "Size Guide",
-                "FAQs",
+                { name: "Contact Us", href: "/contact" },
+                { name: "Shipping & Delivery", href: "/contact" },
+                { name: "Returns & Exchanges", href: "/contact" },
+                { name: "Size Guide", href: "/collections" },
+                { name: "FAQs", href: "/contact" },
               ].map((item) => (
-                <li key={item}>
+                <li key={item.name}>
                   <Link
-                    to="/contact"
+                    to={item.href}
                     className="text-ivory/60 text-sm hover:text-primary transition-colors"
                   >
-                    {item}
+                    {item.name}
                   </Link>
                 </li>
               ))}
@@ -118,18 +120,18 @@ export function Footer() {
             </h4>
             <ul className="space-y-3">
               {[
-                "Our Story",
-                "Craftsmanship",
-                "Sustainability",
-                "Press",
-                "Careers",
+                { name: "Our Story", href: "/about" },
+                { name: "Craftsmanship", href: "/about" },
+                { name: "Sustainability", href: "/about" },
+                { name: "Press", href: "/about" },
+                { name: "Careers", href: "/contact" },
               ].map((item) => (
-                <li key={item}>
+                <li key={item.name}>
                   <Link
-                    to="/about"
+                    to={item.href}
                     className="text-ivory/60 text-sm hover:text-primary transition-colors"
                   >
-                    {item}
+                    {item.name}
                   </Link>
                 </li>
               ))}
@@ -140,7 +142,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-ivory/10 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-ivory/40 text-xs">
-            © 2024 Maison Lumière. All rights reserved.
+            © 2024 Le Bijou Boutique. All rights reserved.
           </p>
           <div className="flex gap-6">
             <Link
