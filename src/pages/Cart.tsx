@@ -142,9 +142,11 @@ export default function Cart() {
                     </div>
                   </div>
 
-                  <Button variant="luxury" size="xl" className="w-full">
-                    Proceed to Checkout
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                  <Button asChild variant="luxury" size="xl" className="w-full">
+                    <Link to="/checkout">
+                      Proceed to Checkout
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
                   </Button>
 
                   <p className="text-xs text-muted-foreground text-center mt-4">
