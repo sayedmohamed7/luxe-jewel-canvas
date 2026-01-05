@@ -4,7 +4,9 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { products, categories } from "@/data/products";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -13,18 +15,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const sortOptions = [
-  { value: "featured", label: "Featured" },
-  { value: "price-asc", label: "Price: Low to High" },
-  { value: "price-desc", label: "Price: High to Low" },
-  { value: "newest", label: "Newest" },
-];
-
 export default function Collections() {
+  const { t, direction } = useLanguage();
+  const isRTL = direction === "rtl";
   const [searchParams, setSearchParams] = useSearchParams();
   const initialCategory = searchParams.get("category") || "All";
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [sortBy, setSortBy] = useState("featured");
+
+  const sortOptions = [
+    { value: "featured", label: t("sort.featured") },
+    { value: "price-asc", label: t("sort.priceAsc") },
+    { value: "price-desc", label: t("sort.priceDesc") },
+    { value: "newest", label: t("sort.newest") },
+  ];
+
+  const categoryLabels: Record<string, string> = {
+    "All": t("collections.all"),
+    "Rings": t("nav.rings"),
+    "Necklaces": t("nav.necklaces"),
+    "Bracelets": t("nav.bracelets"),
+    "Earrings": t("nav.earrings"),
+  };
 
   const filteredProducts = useMemo(() => {
     let result = [...products];
@@ -67,11 +79,10 @@ export default function Collections() {
       {/* Hero */}
       <section className="pt-32 pb-16 bg-secondary">
         <div className="luxury-container text-center">
-          <p className="luxury-subheading mb-4">Explore</p>
-          <h1 className="font-serif text-5xl md:text-6xl mb-4">Collections</h1>
+          <p className="luxury-subheading mb-4">{t("collections.subtitle")}</p>
+          <h1 className="font-serif text-5xl md:text-6xl mb-4">{t("collections.title")}</h1>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Discover our curated selection of exceptional jewelry, each piece a
-            testament to timeless elegance.
+            {t("collections.description")}
           </p>
         </div>
       </section>
@@ -80,8 +91,14 @@ export default function Collections() {
       <section className="py-16">
         <div className="luxury-container">
           {/* Filters */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-            <div className="flex flex-wrap gap-2">
+          <div className={cn(
+            "flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12",
+            isRTL && "md:flex-row-reverse"
+          )}>
+            <div className={cn(
+              "flex flex-wrap gap-2",
+              isRTL && "flex-row-reverse"
+            )}>
               {categories.map((category) => (
                 <Button
                   key={category}
@@ -91,21 +108,31 @@ export default function Collections() {
                   size="sm"
                   onClick={() => handleCategoryChange(category)}
                 >
-                  {category}
+                  {categoryLabels[category] || category}
                 </Button>
               ))}
             </div>
-            <div className="flex items-center gap-4">
+            <div className={cn(
+              "flex items-center gap-4",
+              isRTL && "flex-row-reverse"
+            )}>
               <span className="text-sm text-muted-foreground">
-                {filteredProducts.length} pieces
+                {filteredProducts.length} {t("collections.pieces")}
               </span>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-48 border-foreground/20">
+                <SelectTrigger className={cn(
+                  "w-48 border-foreground/20 bg-background",
+                  isRTL && "text-right"
+                )}>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-background border-border">
                   {sortOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
+                    <SelectItem 
+                      key={option.value} 
+                      value={option.value}
+                      className="hover:bg-hover-muted cursor-pointer"
+                    >
                       {option.label}
                     </SelectItem>
                   ))}
@@ -121,22 +148,21 @@ export default function Collections() {
                 <ProductCard
                   key={product.id}
                   product={product}
-                  className="animate-fade-up"
-                  style={{ animationDelay: `${index * 0.05}s` }}
+                  index={index}
                 />
               ))}
             </div>
           ) : (
             <div className="text-center py-24">
-              <h3 className="font-serif text-2xl mb-4">No pieces found</h3>
+              <h3 className="font-serif text-2xl mb-4">{t("collections.noResults")}</h3>
               <p className="text-muted-foreground mb-8">
-                Try adjusting your filters to discover more.
+                {t("collections.noResultsDesc")}
               </p>
               <Button
                 variant="luxury-outline"
                 onClick={() => handleCategoryChange("All")}
               >
-                View All Collections
+                {t("featured.viewAll")}
               </Button>
             </div>
           )}

@@ -5,28 +5,28 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium tracking-wide transition-all duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium tracking-wide transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow-gold rounded-sm",
+          "bg-primary text-primary-foreground shadow-sm hover:bg-hover-gold hover:shadow-gold rounded-sm",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 rounded-sm",
         outline:
           "border border-foreground/20 bg-transparent text-foreground hover:bg-foreground hover:text-background rounded-sm",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 rounded-sm",
-        ghost: "text-foreground hover:bg-secondary hover:text-foreground rounded-sm",
-        link: "text-foreground underline-offset-4 hover:underline",
+          "bg-secondary text-secondary-foreground shadow-sm hover:bg-hover-muted rounded-sm",
+        ghost: "text-foreground hover:bg-hover-muted hover:text-primary rounded-sm",
+        link: "text-foreground underline-offset-4 hover:underline hover:text-primary",
         luxury:
-          "bg-noir text-ivory border border-noir hover:bg-transparent hover:text-noir tracking-widest uppercase text-xs rounded-none",
+          "bg-noir text-ivory border border-noir hover:bg-transparent hover:text-noir tracking-widest uppercase text-xs rounded-none transition-all duration-500",
         "luxury-outline":
-          "bg-transparent border border-foreground/30 text-foreground hover:border-primary hover:text-primary tracking-widest uppercase text-xs rounded-none",
+          "bg-transparent border border-foreground/30 text-foreground hover:border-primary hover:text-primary tracking-widest uppercase text-xs rounded-none transition-all duration-500",
         "luxury-gold":
-          "bg-primary text-primary-foreground hover:bg-primary/90 tracking-widest uppercase text-xs shadow-gold rounded-none",
+          "bg-primary text-primary-foreground hover:bg-hover-gold tracking-widest uppercase text-xs shadow-gold hover:shadow-elevated rounded-none transition-all duration-500",
         hero:
-          "bg-ivory/10 backdrop-blur-sm text-ivory border border-ivory/30 hover:bg-ivory hover:text-noir tracking-widest uppercase text-xs rounded-none",
+          "bg-ivory/10 backdrop-blur-sm text-ivory border border-ivory/30 hover:bg-ivory/20 hover:border-ivory/50 tracking-widest uppercase text-xs rounded-none transition-all duration-500",
       },
       size: {
         default: "h-10 px-6 py-2",

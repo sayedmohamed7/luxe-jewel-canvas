@@ -3,14 +3,15 @@ import { cn } from "@/lib/utils";
 interface LogoProps {
   className?: string;
   animated?: boolean;
+  shimmer?: boolean;
   size?: "sm" | "md" | "lg";
 }
 
-export function Logo({ className, animated = true, size = "md" }: LogoProps) {
+export function Logo({ className, animated = true, shimmer = false, size = "md" }: LogoProps) {
   const sizeClasses = {
-    sm: "w-6 h-6",
-    md: "w-8 h-8",
-    lg: "w-12 h-12",
+    sm: "w-5 h-5",
+    md: "w-7 h-7",
+    lg: "w-10 h-10",
   };
 
   return (
@@ -22,6 +23,7 @@ export function Logo({ className, animated = true, size = "md" }: LogoProps) {
       className={cn(
         sizeClasses[size],
         animated && "animate-logo-fade-in",
+        shimmer && "animate-logo-shimmer",
         className
       )}
     >
