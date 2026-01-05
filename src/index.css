@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
@@ -49,6 +49,10 @@
     --ivory: 40 30% 97%;
     --champagne: 35 35% 90%;
     --rose-gold: 15 40% 65%;
+
+    /* Hover States - Soft Luxury */
+    --hover-gold: 40 45% 60%;
+    --hover-muted: 40 20% 94%;
 
     /* Gradients */
     --gradient-gold: linear-gradient(135deg, hsl(40 45% 55%) 0%, hsl(35 50% 65%) 100%);
@@ -109,6 +113,9 @@
     --ivory: 40 20% 95%;
     --champagne: 35 20% 25%;
 
+    --hover-gold: 40 50% 65%;
+    --hover-muted: 30 12% 18%;
+
     --sidebar-background: 30 10% 8%;
     --sidebar-foreground: 40 20% 90%;
     --sidebar-primary: 40 50% 60%;
@@ -129,12 +136,43 @@
     scroll-behavior: smooth;
   }
 
+  /* Reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif;
+  }
+
+  /* RTL Support */
+  html.rtl {
+    direction: rtl;
+  }
+
+  html.rtl body {
+    font-family: 'Noto Sans Arabic', 'DM Sans', system-ui, sans-serif;
+  }
+
+  html.rtl h1,
+  html.rtl h2,
+  html.rtl h3,
+  html.rtl h4,
+  html.rtl h5,
+  html.rtl h6 {
+    font-family: 'Noto Sans Arabic', 'Playfair Display', Georgia, serif;
   }
 }
 
@@ -151,8 +189,18 @@
     @apply font-sans text-muted-foreground font-light tracking-wide uppercase text-xs;
   }
 
+  /* RTL-aware subheading */
+  html.rtl .luxury-subheading {
+    @apply tracking-normal;
+  }
+
   .luxury-link {
     @apply relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-[1px] after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-500 hover:after:scale-x-100 hover:after:origin-bottom-left;
+  }
+
+  /* RTL link underline animation */
+  html.rtl .luxury-link {
+    @apply after:left-auto after:right-0 after:origin-bottom-left hover:after:origin-bottom-right;
   }
 
   .luxury-card {
@@ -174,9 +222,20 @@
     animation: shimmer 2.5s infinite;
   }
 
+  html.rtl .shimmer::after {
+    @apply translate-x-full -translate-x-0;
+    animation: shimmer-rtl 2.5s infinite;
+  }
+
   .image-reveal {
     @apply opacity-0 translate-y-4;
     animation: imageReveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  /* Product card stagger animation */
+  .product-card-enter {
+    @apply opacity-0;
+    animation: productCardEnter 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
 }
 
@@ -201,12 +260,33 @@
     animation: logoFadeIn 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
 
+  .animate-logo-shimmer {
+    animation: logoShimmer 8s ease-in-out infinite;
+  }
+
   .hover-lift {
     @apply transition-transform duration-500 hover:-translate-y-1;
   }
 
   .hover-scale {
     @apply transition-transform duration-500 hover:scale-[1.02];
+  }
+
+  /* RTL utilities */
+  .rtl-flip {
+    @apply transform;
+  }
+
+  html.rtl .rtl-flip {
+    @apply -scale-x-100;
+  }
+
+  .rtl-space-reverse {
+    @apply flex-row;
+  }
+
+  html.rtl .rtl-space-reverse {
+    @apply flex-row-reverse;
   }
 }
 
@@ -252,13 +332,41 @@
   }
 }
 
+/* Slow, infinite luxury logo color animation */
+@keyframes logoShimmer {
+  0%, 100% {
+    color: hsl(var(--ivory));
+  }
+  50% {
+    color: hsl(var(--gold-light));
+  }
+}
+
 @keyframes shimmer {
   100% {
     transform: translateX(100%);
   }
 }
 
+@keyframes shimmer-rtl {
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
 @keyframes imageReveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Product card enter animation */
+@keyframes productCardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
   to {
     opacity: 1;
     transform: translateY(0);

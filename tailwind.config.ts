@@ -56,6 +56,8 @@ export default {
           light: "hsl(var(--gold-light))",
           dark: "hsl(var(--gold-dark))",
         },
+        "hover-gold": "hsl(var(--hover-gold))",
+        "hover-muted": "hsl(var(--hover-muted))",
         noir: "hsl(var(--noir))",
         ivory: "hsl(var(--ivory))",
         champagne: "hsl(var(--champagne))",
