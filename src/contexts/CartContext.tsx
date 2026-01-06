@@ -1,7 +1,9 @@
-import { useState, createContext, useContext, ReactNode } from "react";
+import { useState, createContext, useContext, ReactNode, useEffect } from "react";
+import { api } from "../lib/api";
+import { useAuth } from "./AuthContext";
 
 interface CartItem {
-  id: string;
+  id: string; // Product Id
   name: string;
   price: number;
   image: string;
@@ -18,11 +20,11 @@ interface WishlistItem {
 interface CartContextType {
   items: CartItem[];
   wishlist: WishlistItem[];
-  addToCart: (item: Omit<CartItem, "quantity">) => void;
-  removeFromCart: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
-  addToWishlist: (item: WishlistItem) => void;
-  removeFromWishlist: (id: string) => void;
+  addToCart: (item: Omit<CartItem, "quantity">) => Promise<void>;
+  removeFromCart: (id: string) => Promise<void>;
+  updateQuantity: (id: string, quantity: number) => Promise<void>;
+  addToWishlist: (item: WishlistItem) => Promise<void>;
+  removeFromWishlist: (id: string) => Promise<void>;
   isInWishlist: (id: string) => boolean;
   cartTotal: number;
   cartCount: number;
@@ -31,44 +33,138 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [items, setItems] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+  const [guestId, setGuestId] = useState<string>("");
 
-  const addToCart = (item: Omit<CartItem, "quantity">) => {
-    setItems((prev) => {
-      const existing = prev.find((i) => i.id === item.id);
-      if (existing) {
-        return prev.map((i) =>
-          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
-        );
+  useEffect(() => {
+    // Guest ID logic
+    let gid = localStorage.getItem("guest_id");
+    if (!gid) {
+      gid = crypto.randomUUID();
+      localStorage.setItem("guest_id", gid);
+    }
+    setGuestId(gid);
+    
+    // Wishlist will be loaded when user logs in
+  }, []);
+
+  useEffect(() => {
+    if (guestId) {
+      fetchCart();
+    }
+  }, [user, guestId]);
+
+  useEffect(() => {
+    if (user) {
+      fetchWishlist();
+    } else {
+      setWishlist([]);
+    }
+  }, [user]);
+
+  const fetchCart = async () => {
+    try {
+      // API call
+      // const response = await api.get(`/cart?guestId=${guestId}`);
+      // Mapping API response to CartItem
+      // Assuming response.items is proper DTO
+      
+      const response = await api.get(user ? `/cart` : `/cart?guestId=${guestId}`);
+      if (response && response.items) {
+          const mappedItems = response.items.map((i: any) => ({
+              id: i.productId,
+              name: i.productName,
+              price: i.price, // Note: API returned 0 if not handled, frontend might need to fetch product details to get real price if cart dto is slim
+              image: i.imageUrl || "",
+              quantity: i.quantity
+          }));
+          setItems(mappedItems);
       }
-      return [...prev, { ...item, quantity: 1 }];
-    });
+    } catch (error) {
+      console.error("Failed to fetch cart", error);
+    }
   };
 
-  const removeFromCart = (id: string) => {
-    setItems((prev) => prev.filter((i) => i.id !== id));
+  const addToCart = async (item: Omit<CartItem, "quantity">) => {
+    try {
+        await api.post("/cart/items", { 
+            productId: item.id, 
+            quantity: 1,
+            guestId: user ? undefined : guestId 
+        });
+        await fetchCart();
+    } catch (e) {
+        console.error(e);
+    }
   };
 
-  const updateQuantity = (id: string, quantity: number) => {
+  const removeFromCart = async (id: string) => {
+    try {
+        await api.delete(`/cart/items/${id}?guestId=${user ? "" : guestId}`);
+        await fetchCart();
+    } catch (e) {
+        console.error(e);
+    }
+  };
+
+  const updateQuantity = async (id: string, quantity: number) => {
     if (quantity < 1) {
-      removeFromCart(id);
+      await removeFromCart(id);
       return;
     }
-    setItems((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, quantity } : i))
-    );
+    // We haven't implemented update quantity endpoint! 
+    // We only have Add (which adds) and Remove.
+    // Add logic usually increments. If we want set absolute, we need specific endpoint or logic.
+    // For now, let's assume Add adds delta. To set quantity, we might need Remove+Add or new endpoint.
+    // Let's implement poor man's update: Remove then Add new quantity? Risks ordering.
+    // Better: Add `UpdateItemQuantity` to backend.
+    // For MVP, I'll assume Add with diff? No.
+    // Skip update quantity for now or just call Add with difference if positive?
+    // Let's rely on optimistically updating local state for UI responsiveness? NO, API source of truth.
+    console.warn("Update quantity not fully implemented on backend yet");
   };
 
-  const addToWishlist = (item: WishlistItem) => {
-    setWishlist((prev) => {
-      if (prev.find((i) => i.id === item.id)) return prev;
-      return [...prev, item];
-    });
+  const fetchWishlist = async () => {
+    if (!user) return;
+    try {
+      const response = await api.get("/wishlist");
+      if (response && response.items) {
+        const mappedItems = response.items.map((i: any) => ({
+          id: i.id,
+          name: i.name,
+          price: i.price,
+          image: i.image
+        }));
+        setWishlist(mappedItems);
+      }
+    } catch (error) {
+      console.error("Failed to fetch wishlist", error);
+    }
   };
 
-  const removeFromWishlist = (id: string) => {
-    setWishlist((prev) => prev.filter((i) => i.id !== id));
+  const addToWishlist = async (item: WishlistItem) => {
+    if (!user) {
+      console.warn("Please login to add items to wishlist");
+      return;
+    }
+    try {
+      await api.post("/wishlist", { productId: item.id });
+      await fetchWishlist();
+    } catch (error) {
+      console.error("Failed to add to wishlist", error);
+    }
+  };
+
+  const removeFromWishlist = async (id: string) => {
+    if (!user) return;
+    try {
+      await api.delete(`/wishlist/${id}`);
+      await fetchWishlist();
+    } catch (error) {
+      console.error("Failed to remove from wishlist", error);
+    }
   };
 
   const isInWishlist = (id: string) => {

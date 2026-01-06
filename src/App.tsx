@@ -14,13 +14,18 @@ import Wishlist from "./pages/Wishlist";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 const queryClient = new QueryClient();
+
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <LanguageProvider>
-      <CartProvider>
+      <AuthProvider>
+        <CartProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -34,11 +39,14 @@ const App = () => (
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/about" element={<About />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
       </CartProvider>
+      </AuthProvider>
     </LanguageProvider>
   </QueryClientProvider>
 );

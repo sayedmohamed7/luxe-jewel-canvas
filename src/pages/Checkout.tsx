@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Logo } from "@/components/Logo";
@@ -17,6 +17,8 @@ import {
   ChevronRight 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { api } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 type CheckoutStep = "information" | "shipping" | "payment";
 
@@ -24,6 +26,28 @@ export default function Checkout() {
   const { items: cart, cartTotal } = useCart();
   const [currentStep, setCurrentStep] = useState<CheckoutStep>("information");
   const [completedSteps, setCompletedSteps] = useState<CheckoutStep[]>([]);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+
+  // Form State
+  const [formData, setFormData] = useState({
+      email: "",
+      firstName: "",
+      lastName: "",
+      phone: "",
+      address: "",
+      apartment: "",
+      city: "Dubai",
+      emirate: "Dubai",
+      postal: "",
+      shippingMethod: "Free",
+      paymentMethod: "Card"
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
 
   const steps: { id: CheckoutStep; label: string }[] = [
     { id: "information", label: "Information" },
@@ -39,17 +63,49 @@ export default function Checkout() {
     }).format(price);
   };
 
-  const shipping = 0; // Complimentary shipping
+  const shipping = formData.shippingMethod === "SameDay" ? 50 : 0; 
   const total = cartTotal + shipping;
 
   const handleContinue = () => {
+    // Validate current step
     if (currentStep === "information") {
+      if (!formData.email || !formData.firstName || !formData.address) {
+          toast({ title: "Missing fields", description: "Please fill in all required fields." });
+          return;
+      }
       setCompletedSteps([...completedSteps, "information"]);
       setCurrentStep("shipping");
     } else if (currentStep === "shipping") {
       setCompletedSteps([...completedSteps, "shipping"]);
       setCurrentStep("payment");
     }
+  };
+
+  const handleCompleteOrder = async () => {
+      setLoading(true);
+      try {
+          const orderPayload = {
+              shippingAddressLine1: formData.address,
+              shippingAddressLine2: formData.apartment,
+              city: formData.city,
+              state: formData.emirate,
+              country: "UAE",
+              zipCode: formData.postal,
+              phoneNumber: formData.phone,
+              paymentIntentId: "pm_card_visa", // Mock payment intent
+              paymentProvider: "Stripe",
+              currencyCode: "AED",
+              items: cart.map(i => ({ productId: i.id, quantity: i.quantity }))
+          };
+
+          await api.post("/orders", orderPayload);
+          toast({ title: "Order Placed", description: "Thank you for your purchase!" });
+          navigate("/"); // Or order success page
+      } catch (e: any) {
+          toast({ title: "Order Failed", description: e.message, variant: "destructive" });
+      } finally {
+          setLoading(false);
+      }
   };
 
   if (cart.length === 0) {
@@ -143,16 +199,17 @@ export default function Checkout() {
                         type="email"
                         placeholder="your@email.com"
                         className="mt-1.5"
+                        value={formData.email} onChange={handleInputChange}
                       />
                     </div>
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="firstName">First Name</Label>
-                        <Input id="firstName" placeholder="First name" className="mt-1.5" />
+                        <Input id="firstName" placeholder="First name" className="mt-1.5" value={formData.firstName} onChange={handleInputChange} />
                       </div>
                       <div>
                         <Label htmlFor="lastName">Last Name</Label>
-                        <Input id="lastName" placeholder="Last name" className="mt-1.5" />
+                        <Input id="lastName" placeholder="Last name" className="mt-1.5" value={formData.lastName} onChange={handleInputChange} />
                       </div>
                     </div>
                     <div>
@@ -162,6 +219,7 @@ export default function Checkout() {
                         type="tel"
                         placeholder="+971"
                         className="mt-1.5"
+                        value={formData.phone} onChange={handleInputChange}
                       />
                     </div>
                   </div>
@@ -170,24 +228,24 @@ export default function Checkout() {
                   <div className="space-y-4">
                     <div>
                       <Label htmlFor="address">Street Address</Label>
-                      <Input id="address" placeholder="Street address" className="mt-1.5" />
+                      <Input id="address" placeholder="Street address" className="mt-1.5" value={formData.address} onChange={handleInputChange} />
                     </div>
                     <div>
                       <Label htmlFor="apartment">Apartment, suite, etc. (optional)</Label>
-                      <Input id="apartment" placeholder="Apartment, suite, etc." className="mt-1.5" />
+                      <Input id="apartment" placeholder="Apartment, suite, etc." className="mt-1.5" value={formData.apartment} onChange={handleInputChange} />
                     </div>
                     <div className="grid sm:grid-cols-3 gap-4">
                       <div>
                         <Label htmlFor="city">City</Label>
-                        <Input id="city" placeholder="City" className="mt-1.5" />
+                        <Input id="city" placeholder="City" className="mt-1.5" value={formData.city} onChange={handleInputChange} />
                       </div>
                       <div>
                         <Label htmlFor="emirate">Emirate</Label>
-                        <Input id="emirate" placeholder="Emirate" className="mt-1.5" />
+                        <Input id="emirate" placeholder="Emirate" className="mt-1.5" value={formData.emirate} onChange={handleInputChange} />
                       </div>
                       <div>
                         <Label htmlFor="postal">Postal Code</Label>
-                        <Input id="postal" placeholder="Postal code" className="mt-1.5" />
+                        <Input id="postal" placeholder="Postal code" className="mt-1.5" value={formData.postal} onChange={handleInputChange} />
                       </div>
                     </div>
                   </div>
@@ -207,13 +265,14 @@ export default function Checkout() {
                 <div className="animate-fade-in">
                   <h2 className="font-serif text-2xl mb-6">Shipping Method</h2>
                   <div className="space-y-4">
-                    <label className="block border border-primary bg-primary/5 p-4 cursor-pointer">
+                    <label className={`block border p-4 cursor-pointer ${formData.shippingMethod === 'Free' ? 'border-primary bg-primary/5' : 'border-border'}`}>
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-3">
                           <input
                             type="radio"
                             name="shipping"
-                            defaultChecked
+                            checked={formData.shippingMethod === 'Free'}
+                            onChange={() => setFormData({...formData, shippingMethod: 'Free'})}
                             className="mt-1"
                           />
                           <div>
@@ -227,10 +286,10 @@ export default function Checkout() {
                       </div>
                     </label>
 
-                    <label className="block border border-border p-4 cursor-pointer hover:border-primary/50 transition-colors">
+                    <label className={`block border p-4 cursor-pointer hover:border-primary/50 transition-colors ${formData.shippingMethod === 'SameDay' ? 'border-primary bg-primary/5' : 'border-border'}`}>
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-3">
-                          <input type="radio" name="shipping" className="mt-1" />
+                          <input type="radio" name="shipping" checked={formData.shippingMethod === 'SameDay'} onChange={() => setFormData({...formData, shippingMethod: 'SameDay'})} className="mt-1" />
                           <div>
                             <p className="font-medium">Same Day Delivery</p>
                             <p className="text-sm text-muted-foreground">
@@ -275,7 +334,7 @@ export default function Checkout() {
                     <div className="border border-border p-6">
                       <div className="space-y-4">
                         <div>
-                          <Label htmlFor="cardNumber">Card Number</Label>
+                          <Label htmlFor="cardNumber">Card Number (Mock - Any)</Label>
                           <Input
                             id="cardNumber"
                             placeholder="1234 5678 9012 3456"
@@ -298,20 +357,6 @@ export default function Checkout() {
                         </div>
                       </div>
                     </div>
-
-                    <label className="block border border-border p-4 cursor-pointer hover:border-primary/50 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <input type="radio" name="payment" />
-                        <span className="font-medium">PayPal</span>
-                      </div>
-                    </label>
-
-                    <label className="block border border-border p-4 cursor-pointer hover:border-primary/50 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <input type="radio" name="payment" />
-                        <span className="font-medium">Apple Pay</span>
-                      </div>
-                    </label>
                   </div>
 
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
@@ -319,8 +364,8 @@ export default function Checkout() {
                     <span>Your payment information is encrypted and secure</span>
                   </div>
 
-                  <Button variant="luxury" size="xl" className="w-full">
-                    Complete Order — {formatPrice(total)}
+                  <Button variant="luxury" size="xl" className="w-full" onClick={handleCompleteOrder} disabled={loading}>
+                    {loading ? "Processing..." : `Complete Order — ${formatPrice(total)}`}
                   </Button>
                 </div>
               )}
