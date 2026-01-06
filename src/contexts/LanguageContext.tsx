@@ -22,6 +22,8 @@ export const translations: Translations = {
   "nav.contact": { en: "Contact", ar: "اتصل بنا" },
   "nav.currency": { en: "Currency", ar: "العملة" },
   "nav.language": { en: "Language", ar: "اللغة" },
+  "nav.login": { en: "Login", ar: "تسجيل الدخول" },
+  "nav.register": { en: "Register", ar: "إنشاء حساب" },
 
   // Hero Section
   "hero.subtitle": { en: "The New Collection", ar: "المجموعة الجديدة" },
@@ -159,6 +161,7 @@ export const translations: Translations = {
   "checkout.secureDesc": { en: "Your payment information is encrypted", ar: "معلومات الدفع الخاصة بكِ مشفرة" },
   "checkout.freeShipping": { en: "Free Shipping", ar: "شحن مجاني" },
   "checkout.freeShippingDesc": { en: "Complimentary delivery on all orders", ar: "توصيل مجاني على جميع الطلبات" },
+  "checkout.loginRequired": { en: "Please log in to checkout", ar: "يرجى تسجيل الدخول للمتابعة" },
 
   // Contact
   "contact.subtitle": { en: "Get in Touch", ar: "تواصلي معنا" },
@@ -186,6 +189,51 @@ export const translations: Translations = {
   "about.quality.title": { en: "Uncompromising Quality", ar: "جودة لا تُضاهى" },
   "about.sustainability.title": { en: "Sustainable Practices", ar: "ممارسات مستدامة" },
   "about.service.title": { en: "Personalized Service", ar: "خدمة مخصصة" },
+
+  // Auth
+  "auth.welcomeBack": { en: "Welcome Back", ar: "مرحباً بعودتكِ" },
+  "auth.loginSubtitle": { en: "Sign in to your account to continue", ar: "سجلي الدخول إلى حسابكِ للمتابعة" },
+  "auth.registerSubtitle": { en: "Join LE BIJOU Boutique for exclusive access", ar: "انضمي إلى لو بيجو بوتيك للوصول الحصري" },
+  "auth.email": { en: "Email", ar: "البريد الإلكتروني" },
+  "auth.emailPlaceholder": { en: "your@email.com", ar: "بريدك@الإلكتروني.com" },
+  "auth.password": { en: "Password", ar: "كلمة المرور" },
+  "auth.passwordPlaceholder": { en: "Enter your password", ar: "أدخلي كلمة المرور" },
+  "auth.confirmPassword": { en: "Confirm Password", ar: "تأكيد كلمة المرور" },
+  "auth.confirmPasswordPlaceholder": { en: "Confirm your password", ar: "أكدي كلمة المرور" },
+  "auth.firstName": { en: "First Name", ar: "الاسم الأول" },
+  "auth.firstNamePlaceholder": { en: "Your first name", ar: "اسمكِ الأول" },
+  "auth.lastName": { en: "Last Name", ar: "اسم العائلة" },
+  "auth.lastNamePlaceholder": { en: "Your last name", ar: "اسم العائلة" },
+  "auth.signIn": { en: "Sign In", ar: "تسجيل الدخول" },
+  "auth.createAccount": { en: "Create Account", ar: "إنشاء حساب" },
+  "auth.orContinueWith": { en: "or continue with", ar: "أو تابعي باستخدام" },
+  "auth.continueWithGoogle": { en: "Continue with Google", ar: "المتابعة بحساب جوجل" },
+  "auth.continueWithMicrosoft": { en: "Continue with Microsoft", ar: "المتابعة بحساب مايكروسوفت" },
+  "auth.noAccount": { en: "Don't have an account?", ar: "ليس لديكِ حساب؟" },
+  "auth.hasAccount": { en: "Already have an account?", ar: "لديكِ حساب بالفعل؟" },
+  "auth.logout": { en: "Logout", ar: "تسجيل الخروج" },
+  "auth.loginError": { en: "Invalid email or password", ar: "البريد الإلكتروني أو كلمة المرور غير صحيحة" },
+  "auth.registerError": { en: "Unable to create account. Please try again.", ar: "تعذر إنشاء الحساب. يرجى المحاولة مرة أخرى." },
+  "auth.passwordMismatch": { en: "Passwords do not match", ar: "كلمات المرور غير متطابقة" },
+  "auth.passwordTooShort": { en: "Password must be at least 8 characters", ar: "يجب أن تكون كلمة المرور ٨ أحرف على الأقل" },
+  "auth.passwordRequirements": { en: "At least 8 characters", ar: "٨ أحرف على الأقل" },
+
+  // Profile
+  "profile.welcome": { en: "Welcome", ar: "مرحباً" },
+  "profile.personalInfo": { en: "Personal Information", ar: "المعلومات الشخصية" },
+  "profile.personalInfoDesc": { en: "Manage your personal details", ar: "إدارة بياناتكِ الشخصية" },
+  "profile.myOrders": { en: "My Orders", ar: "طلباتي" },
+  "profile.myOrdersDesc": { en: "Track and view your orders", ar: "تتبعي وعرض طلباتكِ" },
+  "profile.wishlist": { en: "Wishlist", ar: "قائمة الأمنيات" },
+  "profile.wishlistDesc": { en: "Your saved items", ar: "العناصر المحفوظة" },
+  "profile.addresses": { en: "Addresses", ar: "العناوين" },
+  "profile.addressesDesc": { en: "Manage your shipping addresses", ar: "إدارة عناوين الشحن" },
+  "profile.reviews": { en: "My Reviews", ar: "تقييماتي" },
+  "profile.reviewsDesc": { en: "Reviews you've submitted", ar: "التقييمات التي قدمتِها" },
+
+  // Orders
+  "orders.empty": { en: "You haven't placed any orders yet", ar: "لم تقومي بأي طلبات بعد" },
+  "orders.startShopping": { en: "Start Shopping", ar: "ابدئي التسوق" },
 
   // Common
   "common.loading": { en: "Loading...", ar: "جارٍ التحميل..." },
