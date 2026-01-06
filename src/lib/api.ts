@@ -1,10 +1,13 @@
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5240/api';
 
-const getAuthToken = () => localStorage.getItem('auth_token');
+const getAuthToken = () => localStorage.getItem('jwt_token');
 const getCurrentLanguage = () => localStorage.getItem('language') || 'en';
 
-export const setAuthToken = (token: string) => localStorage.setItem('auth_token', token);
-export const removeAuthToken = () => localStorage.removeItem('auth_token');
+export const setAuthToken = (token: string) => localStorage.setItem('jwt_token', token);
+export const removeAuthToken = () => {
+  localStorage.removeItem('jwt_token');
+  localStorage.removeItem('user');
+};
 
 async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
   const token = getAuthToken();
@@ -24,10 +27,12 @@ async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
 
   if (response.status === 401) {
-    // Check if it's a login endpoint
-    if (!endpoint.includes('/auth/login')) {
+    // Check if it's a login/register endpoint
+    if (!endpoint.includes('/auth/login') && !endpoint.includes('/auth/register')) {
       removeAuthToken();
-      window.location.href = '/login'; // Or handle better
+      if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+        window.location.href = '/login';
+      }
     }
   }
 
@@ -69,4 +74,47 @@ export const api = {
     }
     return response.json();
   }
+};
+
+// Auth-specific interfaces for type safety
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface RegisterCredentials {
+  email: string;
+  password: string;
+  fullName?: string;
+  firstName?: string;
+  lastName?: string;
+}
+
+export interface AuthResponse {
+  succeeded: boolean;
+  token: string;
+  errors?: string[];
+}
+
+// Auth endpoints with proper typing
+export const authApi = {
+  login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
+    return api.post('/auth/login', credentials);
+  },
+
+  register: async (credentials: RegisterCredentials): Promise<AuthResponse> => {
+    return api.post('/auth/register', credentials);
+  },
+
+  // OAuth endpoints - redirects to backend
+  googleLoginUrl: `${API_BASE_URL}/auth/google-login`,
+  microsoftLoginUrl: `${API_BASE_URL}/auth/microsoft-login`,
+};
+
+// Helper to extract error messages from API response
+export const getApiErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return "An unexpected error occurred. Please try again.";
 };

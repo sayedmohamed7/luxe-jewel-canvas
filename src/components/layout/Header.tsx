@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Heart, ShoppingBag, Menu, Globe, ChevronDown } from "lucide-react";
+import { Heart, ShoppingBag, Menu, Globe, ChevronDown, User, LogOut, Package } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -28,6 +30,7 @@ const languages = [
 export function Header() {
   const { cartCount, wishlist } = useCart();
   const { language, direction, setLanguage, t } = useLanguage();
+  const { isAuthenticated, user, logout } = useAuth();
   const location = useLocation();
   const [currency, setCurrency] = useState(currencies[0]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -193,27 +196,134 @@ export function Header() {
               "flex items-center gap-3",
               isRTL && "flex-row-reverse"
             )}>
-              <Link to="/wishlist">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn(
-                    "relative transition-colors duration-300",
-                    textColor,
-                    hoverBg
-                  )}
-                >
-                  <Heart className="h-5 w-5" />
-                  {wishlist.length > 0 && (
-                    <span className={cn(
-                      "absolute -top-1 h-4 w-4 rounded-full bg-primary text-[10px] text-primary-foreground flex items-center justify-center",
-                      isRTL ? "-left-1" : "-right-1"
-                    )}>
-                      {wishlist.length}
-                    </span>
-                  )}
-                </Button>
-              </Link>
+              {/* Auth: Login/Register or Profile */}
+              {isAuthenticated ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={cn(
+                        "relative transition-colors duration-300",
+                        textColor,
+                        hoverBg
+                      )}
+                    >
+                      <User className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent 
+                    align={isRTL ? "start" : "end"} 
+                    className="min-w-[180px] bg-background border-border"
+                  >
+                    <div className={cn("px-3 py-2 border-b border-border", isRTL && "text-right")}>
+                      <p className="text-sm font-medium">
+                        {user?.firstName || user?.email?.split("@")[0]}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                    </div>
+                    <DropdownMenuItem asChild>
+                      <Link 
+                        to="/profile" 
+                        className={cn(
+                          "flex items-center gap-2 cursor-pointer hover:bg-hover-muted hover:text-primary",
+                          isRTL && "flex-row-reverse"
+                        )}
+                      >
+                        <User className="h-4 w-4" />
+                        {t("profile.personalInfo")}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link 
+                        to="/orders" 
+                        className={cn(
+                          "flex items-center gap-2 cursor-pointer hover:bg-hover-muted hover:text-primary",
+                          isRTL && "flex-row-reverse"
+                        )}
+                      >
+                        <Package className="h-4 w-4" />
+                        {t("profile.myOrders")}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link 
+                        to="/wishlist" 
+                        className={cn(
+                          "flex items-center gap-2 cursor-pointer hover:bg-hover-muted hover:text-primary",
+                          isRTL && "flex-row-reverse"
+                        )}
+                      >
+                        <Heart className="h-4 w-4" />
+                        {t("profile.wishlist")}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={logout}
+                      className={cn(
+                        "flex items-center gap-2 cursor-pointer text-destructive hover:bg-destructive/10",
+                        isRTL && "flex-row-reverse"
+                      )}
+                    >
+                      <LogOut className="h-4 w-4" />
+                      {t("auth.logout")}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <div className={cn("hidden md:flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                  <Link to="/login">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={cn(
+                        "text-xs tracking-wide transition-colors duration-300",
+                        textColor,
+                        hoverBg
+                      )}
+                    >
+                      {t("nav.login")}
+                    </Button>
+                  </Link>
+                  <Link to="/register">
+                    <Button
+                      variant={showSolidBg ? "luxury-outline" : "outline"}
+                      size="sm"
+                      className={cn(
+                        "text-xs tracking-wide",
+                        !showSolidBg && "border-ivory/50 text-ivory hover:bg-ivory/10"
+                      )}
+                    >
+                      {t("nav.register")}
+                    </Button>
+                  </Link>
+                </div>
+              )}
+
+              {isAuthenticated && (
+                <Link to="/wishlist">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      "relative transition-colors duration-300",
+                      textColor,
+                      hoverBg
+                    )}
+                  >
+                    <Heart className="h-5 w-5" />
+                    {wishlist.length > 0 && (
+                      <span className={cn(
+                        "absolute -top-1 h-4 w-4 rounded-full bg-primary text-[10px] text-primary-foreground flex items-center justify-center",
+                        isRTL ? "-left-1" : "-right-1"
+                      )}>
+                        {wishlist.length}
+                      </span>
+                    )}
+                  </Button>
+                </Link>
+              )}
 
               <Link to="/cart">
                 <Button
@@ -265,6 +375,29 @@ export function Header() {
                       <span className="font-serif text-lg tracking-wider">LE BIJOU</span>
                     </div>
                     
+                    {/* Mobile Auth */}
+                    {isAuthenticated ? (
+                      <div className={cn("pb-6 border-b border-border", isRTL && "text-right")}>
+                        <p className="text-sm font-medium">
+                          {user?.firstName || user?.email?.split("@")[0]}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{user?.email}</p>
+                      </div>
+                    ) : (
+                      <div className={cn("flex gap-2", isRTL && "flex-row-reverse")}>
+                        <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="flex-1">
+                          <Button variant="luxury-outline" className="w-full">
+                            {t("nav.login")}
+                          </Button>
+                        </Link>
+                        <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="flex-1">
+                          <Button variant="luxury" className="w-full">
+                            {t("nav.register")}
+                          </Button>
+                        </Link>
+                      </div>
+                    )}
+                    
                     <nav className="flex flex-col gap-6">
                       {navLinks.map((link) => (
                         <Link
@@ -279,6 +412,31 @@ export function Header() {
                           {link.name}
                         </Link>
                       ))}
+                      
+                      {isAuthenticated && (
+                        <>
+                          <Link
+                            to="/profile"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className={cn(
+                              "text-sm tracking-widest uppercase text-foreground hover:text-primary transition-colors duration-200",
+                              isRTL && "text-right"
+                            )}
+                          >
+                            {t("profile.personalInfo")}
+                          </Link>
+                          <Link
+                            to="/orders"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className={cn(
+                              "text-sm tracking-widest uppercase text-foreground hover:text-primary transition-colors duration-200",
+                              isRTL && "text-right"
+                            )}
+                          >
+                            {t("profile.myOrders")}
+                          </Link>
+                        </>
+                      )}
                     </nav>
 
                     <div className="border-t border-border pt-6">
@@ -336,6 +494,25 @@ export function Header() {
                         ))}
                       </div>
                     </div>
+
+                    {isAuthenticated && (
+                      <div className="pt-4 border-t border-border">
+                        <Button
+                          variant="ghost"
+                          className={cn(
+                            "w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10",
+                            isRTL && "flex-row-reverse"
+                          )}
+                          onClick={() => {
+                            logout();
+                            setMobileMenuOpen(false);
+                          }}
+                        >
+                          <LogOut className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                          {t("auth.logout")}
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </SheetContent>
               </Sheet>
