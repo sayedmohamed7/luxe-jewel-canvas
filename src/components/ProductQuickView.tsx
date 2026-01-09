@@ -1,43 +1,55 @@
 import { X, Heart, ShoppingBag } from "lucide-react";
-import { Product } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 
+interface ProductQuickViewData {
+  id: string;
+  name: string;
+  nameAr?: string;
+  price: number;
+  priceUSD?: number;
+  category: string;
+  categoryAr?: string;
+  image: string;
+  images?: string[];
+  description?: string;
+}
+
 interface ProductQuickViewProps {
-  product: Product;
+  product: ProductQuickViewData;
   isOpen: boolean;
   onClose: () => void;
 }
 
 export function ProductQuickView({ product, isOpen, onClose }: ProductQuickViewProps) {
   const { addToCart, addToWishlist, removeFromWishlist, isInWishlist } = useCart();
-  const { t, direction } = useLanguage();
+  const { t, direction, language } = useLanguage();
+  const { formatPrice } = useCurrency();
   const { toast } = useToast();
   const inWishlist = isInWishlist(product.id);
   const isRTL = direction === "rtl";
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-AE", {
-      style: "currency",
-      currency: "AED",
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
+  const displayName = language === "ar" && product.nameAr ? product.nameAr : product.name;
+  const displayCategory = language === "ar" && product.categoryAr ? product.categoryAr : product.category;
 
   const handleAddToCart = () => {
     addToCart({
       id: product.id,
+      productId: product.id,
       name: product.name,
+      nameAr: product.nameAr,
       price: product.price,
+      priceUSD: product.priceUSD,
       image: product.image,
     });
     toast({
       title: t("product.addedToBag"),
-      description: `${product.name} ${t("product.addedToBagDesc")}`,
+      description: `${displayName} ${t("product.addedToBagDesc")}`,
     });
     onClose();
   };
@@ -48,8 +60,11 @@ export function ProductQuickView({ product, isOpen, onClose }: ProductQuickViewP
     } else {
       addToWishlist({
         id: product.id,
+        productId: product.id,
         name: product.name,
+        nameAr: product.nameAr,
         price: product.price,
+        priceUSD: product.priceUSD,
         image: product.image,
       });
     }
@@ -103,8 +118,8 @@ export function ProductQuickView({ product, isOpen, onClose }: ProductQuickViewP
             "p-6 md:p-8 flex flex-col justify-center",
             isRTL && "md:col-start-1 text-right"
           )}>
-            <p className="luxury-subheading mb-2">{product.category}</p>
-            <h3 className="font-serif text-2xl md:text-3xl mb-3">{product.name}</h3>
+            <p className="luxury-subheading mb-2">{displayCategory}</p>
+            <h3 className="font-serif text-2xl md:text-3xl mb-3">{displayName}</h3>
             <p className="text-xl text-primary mb-4">{formatPrice(product.price)}</p>
             
             <p className="text-muted-foreground text-sm leading-relaxed mb-6">

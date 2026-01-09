@@ -58,6 +58,7 @@ export default function ProductDetail() {
     for (let i = 0; i < quantity; i++) {
       addToCart({
         id: product.id,
+        productId: product.id,
         name: product.name,
         price: product.price,
         image: product.image,
@@ -79,6 +80,7 @@ export default function ProductDetail() {
     } else {
       addToWishlist({
         id: product.id,
+        productId: product.id,
         name: product.name,
         price: product.price,
         image: product.image,
