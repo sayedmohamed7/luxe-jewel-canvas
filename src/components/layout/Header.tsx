@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Heart, ShoppingBag, Menu, Globe, ChevronDown, User, LogOut, Package } from "lucide-react";
+import { Heart, ShoppingBag, Menu, Globe, ChevronDown, User, LogOut, Package, Settings } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCurrency, currencies } from "@/contexts/CurrencyContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
@@ -16,12 +17,6 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
-const currencies = [
-  { code: "AED", symbol: "د.إ", name: "UAE Dirham", nameAr: "درهم إماراتي" },
-  { code: "SAR", symbol: "﷼", name: "Saudi Riyal", nameAr: "ريال سعودي" },
-  { code: "USD", symbol: "$", name: "US Dollar", nameAr: "دولار أمريكي" },
-];
-
 const languages = [
   { code: "en" as const, name: "English", nameAr: "الإنجليزية" },
   { code: "ar" as const, name: "العربية", nameAr: "العربية" },
@@ -30,14 +25,15 @@ const languages = [
 export function Header() {
   const { cartCount, wishlist } = useCart();
   const { language, direction, setLanguage, t } = useLanguage();
+  const { currency, setCurrency } = useCurrency();
   const { isAuthenticated, user, logout } = useAuth();
   const location = useLocation();
-  const [currency, setCurrency] = useState(currencies[0]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   const isHome = location.pathname === "/";
   const isRTL = direction === "rtl";
+  const isAdmin = user?.role === "Admin";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -258,6 +254,23 @@ export function Header() {
                         {t("profile.wishlist")}
                       </Link>
                     </DropdownMenuItem>
+                    {isAdmin && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <Link 
+                            to="/admin" 
+                            className={cn(
+                              "flex items-center gap-2 cursor-pointer hover:bg-hover-muted hover:text-primary",
+                              isRTL && "flex-row-reverse"
+                            )}
+                          >
+                            <Settings className="h-4 w-4" />
+                            {t("nav.adminDashboard")}
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem 
                       onClick={logout}
@@ -435,6 +448,18 @@ export function Header() {
                           >
                             {t("profile.myOrders")}
                           </Link>
+                          {isAdmin && (
+                            <Link
+                              to="/admin"
+                              onClick={() => setMobileMenuOpen(false)}
+                              className={cn(
+                                "text-sm tracking-widest uppercase text-primary hover:text-primary/80 transition-colors duration-200",
+                                isRTL && "text-right"
+                              )}
+                            >
+                              {t("nav.adminDashboard")}
+                            </Link>
+                          )}
                         </>
                       )}
                     </nav>

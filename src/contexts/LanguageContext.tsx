@@ -24,6 +24,7 @@ export const translations: Translations = {
   "nav.language": { en: "Language", ar: "اللغة" },
   "nav.login": { en: "Login", ar: "تسجيل الدخول" },
   "nav.register": { en: "Register", ar: "إنشاء حساب" },
+  "nav.adminDashboard": { en: "Admin Dashboard", ar: "لوحة الإدارة" },
 
   // Hero Section
   "hero.subtitle": { en: "The New Collection", ar: "المجموعة الجديدة" },
