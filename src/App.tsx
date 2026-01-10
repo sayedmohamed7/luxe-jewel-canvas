@@ -27,6 +27,8 @@ import AdminProducts from "./pages/admin/AdminProducts";
 import AdminCategories from "./pages/admin/AdminCategories";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminCustomers from "./pages/admin/AdminCustomers";
+import AdminUsers from "./pages/admin/AdminUsers";
+import ProfileSettings from "./pages/profile/ProfileSettings";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +69,11 @@ const App = () => (
                       <Profile />
                     </ProtectedRoute>
                   } />
+                  <Route path="/profile/settings" element={
+                    <ProtectedRoute>
+                      <ProfileSettings />
+                    </ProtectedRoute>
+                  } />
                   <Route path="/orders" element={
                     <ProtectedRoute>
                       <Orders />
@@ -97,6 +104,11 @@ const App = () => (
                   <Route path="/admin/customers" element={
                     <AdminProtectedRoute>
                       <AdminCustomers />
+                    </AdminProtectedRoute>
+                  } />
+                  <Route path="/admin/users" element={
+                    <AdminProtectedRoute>
+                      <AdminUsers />
                     </AdminProtectedRoute>
                   } />
                   

@@ -109,29 +109,24 @@ export interface UpdateCategoryData extends Partial<CreateCategoryData> {
 export const adminApi = {
   // Dashboard
   getDashboardStats: async (): Promise<DashboardStats> => {
-    const response = await api.get<DashboardStats>("/admin/dashboard");
-    return response.data;
+    return api.get("/admin/dashboard");
   },
 
   // Products
   getProducts: async (): Promise<Product[]> => {
-    const response = await api.get<Product[]>("/admin/products");
-    return response.data;
+    return api.get("/admin/products");
   },
 
   getProduct: async (id: string): Promise<Product> => {
-    const response = await api.get<Product>(`/admin/products/${id}`);
-    return response.data;
+    return api.get(`/admin/products/${id}`);
   },
 
   createProduct: async (data: CreateProductData): Promise<Product> => {
-    const response = await api.post<Product>("/admin/products", data);
-    return response.data;
+    return api.post("/admin/products", data);
   },
 
   updateProduct: async (id: string, data: Partial<CreateProductData>): Promise<Product> => {
-    const response = await api.put<Product>(`/admin/products/${id}`, data);
-    return response.data;
+    return api.put(`/admin/products/${id}`, data);
   },
 
   deleteProduct: async (id: string): Promise<void> => {
@@ -140,23 +135,19 @@ export const adminApi = {
 
   // Categories
   getCategories: async (): Promise<Category[]> => {
-    const response = await api.get<Category[]>("/admin/categories");
-    return response.data;
+    return api.get("/admin/categories");
   },
 
   getCategory: async (id: string): Promise<Category> => {
-    const response = await api.get<Category>(`/admin/categories/${id}`);
-    return response.data;
+    return api.get(`/admin/categories/${id}`);
   },
 
   createCategory: async (data: CreateCategoryData): Promise<Category> => {
-    const response = await api.post<Category>("/admin/categories", data);
-    return response.data;
+    return api.post("/admin/categories", data);
   },
 
   updateCategory: async (id: string, data: Partial<CreateCategoryData>): Promise<Category> => {
-    const response = await api.put<Category>(`/admin/categories/${id}`, data);
-    return response.data;
+    return api.put(`/admin/categories/${id}`, data);
   },
 
   deleteCategory: async (id: string): Promise<void> => {
@@ -165,28 +156,23 @@ export const adminApi = {
 
   // Orders
   getOrders: async (): Promise<Order[]> => {
-    const response = await api.get<Order[]>("/admin/orders");
-    return response.data;
+    return api.get("/admin/orders");
   },
 
   getOrder: async (id: string): Promise<Order> => {
-    const response = await api.get<Order>(`/admin/orders/${id}`);
-    return response.data;
+    return api.get(`/admin/orders/${id}`);
   },
 
   updateOrderStatus: async (id: string, status: Order["status"]): Promise<Order> => {
-    const response = await api.patch<Order>(`/admin/orders/${id}/status`, { status });
-    return response.data;
+    return api.put(`/admin/orders/${id}/status`, { status });
   },
 
   // Customers
   getCustomers: async (): Promise<Customer[]> => {
-    const response = await api.get<Customer[]>("/admin/customers");
-    return response.data;
+    return api.get("/admin/customers");
   },
 
   getCustomer: async (id: string): Promise<Customer> => {
-    const response = await api.get<Customer>(`/admin/customers/${id}`);
-    return response.data;
+    return api.get(`/admin/customers/${id}`);
   },
 };
