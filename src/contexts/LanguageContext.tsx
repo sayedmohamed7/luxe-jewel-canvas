@@ -204,6 +204,8 @@ export const translations: Translations = {
   "auth.firstNamePlaceholder": { en: "Your first name", ar: "اسمكِ الأول" },
   "auth.lastName": { en: "Last Name", ar: "اسم العائلة" },
   "auth.lastNamePlaceholder": { en: "Your last name", ar: "اسم العائلة" },
+  "auth.fullName": { en: "Full Name", ar: "الاسم الكامل" },
+  "auth.fullNamePlaceholder": { en: "Enter your full name", ar: "أدخلي اسمك الكامل" },
   "auth.signIn": { en: "Sign In", ar: "تسجيل الدخول" },
   "auth.createAccount": { en: "Create Account", ar: "إنشاء حساب" },
   "auth.orContinueWith": { en: "or continue with", ar: "أو تابعي باستخدام" },

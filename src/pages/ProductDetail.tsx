@@ -24,10 +24,13 @@ export default function ProductDetail() {
   const [product, setProduct] = useState<any | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
       if (!id) return;
+      setLoading(true);
+      setError(null);
       try {
         const data = await api.get(`/products/${id}`);
         // Map API data
@@ -39,7 +42,7 @@ export default function ProductDetail() {
              image: data.assets?.[0]?.url || "",
              images: data.assets?.map((a: any) => a.url) || [],
              description: isRTL ? (data.description_ar || data.description_en) : data.description_en,
-             fullDescription: isRTL ? (data.description_ar || data.description_en) : data.description_en, // Use same for now if no separate full desc
+             fullDescription: isRTL ? (data.description_ar || data.description_en) : data.description_en,
              details: data.stoneDetails ? [data.stoneDetails] : [],
              reviews: [] 
         };
@@ -51,6 +54,7 @@ export default function ProductDetail() {
         // setRelatedProducts(related.map...);
       } catch (e) {
         console.error("Failed to fetch product", e);
+        setError(e instanceof Error ? e.message : "Failed to load product");
       } finally {
         setLoading(false);
       }
@@ -58,25 +62,18 @@ export default function ProductDetail() {
     fetchProduct();
   }, [id, isRTL]);
 
-  const inWishlist = product ? isInWishlist(product.id) : false;
-
   if (loading) {
-     return <div className="min-h-screen bg-background flex items-center justify-center">Loading...</div>;
-  }
-
-  if (!product) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="pt-32 pb-24 text-center">
-          <div className="luxury-container">
-            <h1 className="font-serif text-4xl mb-4">Product Not Found</h1>
-            <p className="text-muted-foreground mb-8">
-              The piece you're looking for doesn't exist.
-            </p>
-            <Button asChild variant="luxury">
-              <Link to="/collections">Back to Collections</Link>
-            </Button>
+        <div className="flex items-center justify-center" style={{ minHeight: "calc(100vh - 200px)" }}>
+          <div className="text-center">
+            <div className="inline-block animate-pulse">
+              <div className="font-serif text-4xl tracking-[0.3em] mb-2 bg-gradient-to-r from-primary via-luxury-gold to-primary bg-clip-text text-transparent">
+                LE BIJOU
+              </div>
+            </div>
+            <p className="text-muted-foreground text-sm mt-4">{t("common.loading")}</p>
           </div>
         </div>
         <Footer />
@@ -84,8 +81,23 @@ export default function ProductDetail() {
     );
   }
 
-  // const relatedProducts logic... 
-  // keeping empty relatedProducts for now or static
+  if (error || !product) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="flex items-center justify-center" style={{ minHeight: "calc(100vh - 200px)" }}>
+          <div className="text-center max-w-md">
+            <h2 className="text-2xl font-serif mb-4">{t("common.error")}</h2>
+            <p className="text-muted-foreground mb-6">{error || "Product not found"}</p>
+            <Button onClick={() => window.location.reload()}>{t("common.tryAgain")}</Button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  const inWishlist = product ? isInWishlist(product.id) : false;
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-AE", {
