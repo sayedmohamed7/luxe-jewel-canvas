@@ -1,16 +1,30 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Heart, ShoppingBag, Eye } from "lucide-react";
-import { Product } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ProductQuickView } from "@/components/ProductQuickView";
 import { useToast } from "@/hooks/use-toast";
 
+// Flexible product interface to support both local and API products
+export interface ProductCardData {
+  id: string;
+  name: string;
+  nameAr?: string;
+  price: number;
+  priceUSD?: number;
+  category: string;
+  categoryAr?: string;
+  image: string;
+  images?: string[];
+  description?: string;
+}
+
 interface ProductCardProps {
-  product: Product;
+  product: ProductCardData;
   className?: string;
   style?: React.CSSProperties;
   index?: number;
@@ -18,11 +32,15 @@ interface ProductCardProps {
 
 export function ProductCard({ product, className, style, index = 0 }: ProductCardProps) {
   const { addToCart, addToWishlist, removeFromWishlist, isInWishlist } = useCart();
-  const { t, direction } = useLanguage();
+  const { t, direction, language } = useLanguage();
+  const { formatPrice } = useCurrency();
   const { toast } = useToast();
   const [showQuickView, setShowQuickView] = useState(false);
   const inWishlist = isInWishlist(product.id);
   const isRTL = direction === "rtl";
+
+  const displayName = language === "ar" && product.nameAr ? product.nameAr : product.name;
+  const displayCategory = language === "ar" && product.categoryAr ? product.categoryAr : product.category;
 
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -32,8 +50,11 @@ export function ProductCard({ product, className, style, index = 0 }: ProductCar
     } else {
       addToWishlist({
         id: product.id,
+        productId: product.id,
         name: product.name,
+        nameAr: product.nameAr,
         price: product.price,
+        priceUSD: product.priceUSD,
         image: product.image,
       });
     }
@@ -44,13 +65,16 @@ export function ProductCard({ product, className, style, index = 0 }: ProductCar
     e.stopPropagation();
     addToCart({
       id: product.id,
+      productId: product.id,
       name: product.name,
+      nameAr: product.nameAr,
       price: product.price,
+      priceUSD: product.priceUSD,
       image: product.image,
     });
     toast({
       title: t("product.addedToBag"),
-      description: `${product.name} ${t("product.addedToBagDesc")}`,
+      description: `${displayName} ${t("product.addedToBagDesc")}`,
     });
   };
 
@@ -58,14 +82,6 @@ export function ProductCard({ product, className, style, index = 0 }: ProductCar
     e.preventDefault();
     e.stopPropagation();
     setShowQuickView(true);
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-AE", {
-      style: "currency",
-      currency: "AED",
-      minimumFractionDigits: 0,
-    }).format(price);
   };
 
   return (
@@ -157,10 +173,10 @@ export function ProductCard({ product, className, style, index = 0 }: ProductCar
         
         <div className={cn("text-center", isRTL && "text-center")}>
           <p className="text-xs tracking-widest uppercase text-muted-foreground mb-1">
-            {product.category}
+            {displayCategory}
           </p>
           <h3 className="font-serif text-lg mb-2 group-hover:text-primary transition-colors duration-300">
-            {product.name}
+            {displayName}
           </h3>
           <p className="text-sm text-muted-foreground">
             {formatPrice(product.price)}
@@ -169,7 +185,11 @@ export function ProductCard({ product, className, style, index = 0 }: ProductCar
       </Link>
 
       <ProductQuickView
-        product={product}
+        product={{
+          ...product,
+          images: product.images || [product.image],
+          description: product.description || "",
+        }}
         isOpen={showQuickView}
         onClose={() => setShowQuickView(false)}
       />

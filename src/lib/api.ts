@@ -111,6 +111,117 @@ export const authApi = {
   microsoftLoginUrl: `${API_BASE_URL}/auth/microsoft-login`,
 };
 
+// Product types matching backend
+export interface ProductImage {
+  id: string;
+  url: string;
+  altText?: string;
+  isPrimary: boolean;
+  displayOrder: number;
+}
+
+export interface ProductPrice {
+  currencyCode: string;
+  amount: number;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  nameAr?: string;
+  description: string;
+  descriptionAr?: string;
+  category: string;
+  categoryAr?: string;
+  status: string;
+  isCurated: boolean;
+  images: ProductImage[];
+  prices: ProductPrice[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  nameAr?: string;
+  description?: string;
+  descriptionAr?: string;
+}
+
+export interface CartItem {
+  id: string;
+  productId: string;
+  quantity: number;
+  product?: Product;
+}
+
+export interface WishlistItem {
+  id: string;
+  productId: string;
+  product?: Product;
+}
+
+// Products API
+export const productsApi = {
+  getAll: async (): Promise<Product[]> => {
+    return api.get("/products");
+  },
+
+  getById: async (id: string): Promise<Product> => {
+    return api.get(`/products/${id}`);
+  },
+
+  getByCategory: async (category: string): Promise<Product[]> => {
+    return api.get(`/products/category/${category}`);
+  },
+};
+
+// Categories API
+export const categoriesApi = {
+  getAll: async (): Promise<Category[]> => {
+    return api.get("/categories");
+  },
+};
+
+// Cart API (for authenticated users)
+export const cartApi = {
+  get: async (): Promise<CartItem[]> => {
+    return api.get("/cart");
+  },
+
+  addItem: async (productId: string, quantity: number = 1): Promise<CartItem> => {
+    return api.post("/cart/items", { productId, quantity });
+  },
+
+  updateItem: async (itemId: string, quantity: number): Promise<CartItem> => {
+    return api.put(`/cart/items/${itemId}`, { quantity });
+  },
+
+  removeItem: async (itemId: string): Promise<void> => {
+    await api.delete(`/cart/items/${itemId}`);
+  },
+
+  clear: async (): Promise<void> => {
+    await api.delete("/cart");
+  },
+};
+
+// Wishlist API (for authenticated users)
+export const wishlistApi = {
+  get: async (): Promise<WishlistItem[]> => {
+    return api.get("/wishlist");
+  },
+
+  addItem: async (productId: string): Promise<WishlistItem> => {
+    return api.post("/wishlist/items", { productId });
+  },
+
+  removeItem: async (productId: string): Promise<void> => {
+    await api.delete(`/wishlist/items/${productId}`);
+  },
+};
+
 // Helper to extract error messages from API response
 export const getApiErrorMessage = (error: unknown): string => {
   if (error instanceof Error) {
@@ -118,3 +229,17 @@ export const getApiErrorMessage = (error: unknown): string => {
   }
   return "An unexpected error occurred. Please try again.";
 };
+
+// Helper to get primary image URL
+export const getPrimaryImageUrl = (product: Product): string => {
+  const primary = product.images?.find(img => img.isPrimary);
+  return primary?.url || product.images?.[0]?.url || "/placeholder.svg";
+};
+
+// Helper to get price in specific currency
+export const getPrice = (product: Product, currencyCode: string): number => {
+  const price = product.prices?.find(p => p.currencyCode === currencyCode);
+  return price?.amount || product.prices?.[0]?.amount || 0;
+};
+
+export default api;
